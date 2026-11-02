@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JobTrack — Rekap Lamaran Kerja</title>
+<style>
+:root{--navy:#17365d;--blue:#2563eb;--gold:#d6a84f;--bg:#f4f7fb;--ink:#172033;--muted:#68758a;--line:#e4eaf2;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial, sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#17365d,#24558a);color:white;padding:28px max(20px,calc((100% - 1200px)/2))}
+header h1{margin:0 0 7px;font-size:27px}header p{margin:0;color:#dce8f6;font-size:14px}
+main{max-width:1200px;margin:24px auto;padding:0 18px 40px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat,.panel{background:white;border:1px solid var(--line);border-radius:13px;box-shadow:0 3px 12px #152b4b08}
+.stat{padding:17px}.stat span{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:8px;color:var(--navy)}
+.panel{padding:19px;margin-bottom:18px}.panel h2{font-size:17px;margin:0 0 16px;color:var(--navy)}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+label{font-size:12px;font-weight:700;color:#536176;display:block;margin-bottom:6px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #d7dfeb;border-radius:8px;background:white;color:var(--ink);font:14px Arial;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2563eb15}
+textarea{resize:vertical;min-height:40px}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px}
+.primary{background:var(--blue);color:white}.secondary{background:#edf2f8;color:var(--navy)}.danger{background:#fff0f0;color:#b42318}.gold{background:#fff5df;color:#8b641c}
+.filters{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:980px;font-size:13px}
+th{text-align:left;background:#f5f8fc;color:#536176;padding:12px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.35px}
+td{padding:12px 10px;border-top:1px solid var(--line);vertical-align:top}
+td strong{color:var(--navy)}.muted{color:var(--muted);font-size:12px;margin-top:4px}
+.pill{display:inline-block;padding:5px 8px;border-radius:20px;font-size:11px;font-weight:700;background:#edf2f8;color:#46566d}
+.pill.diterima{background:#e6f7ed;color:#167044}.pill.ditolak{background:#ffebeb;color:#b42318}.pill.proses{background:#eaf2ff;color:#1d4ed8}.pill.mundur{background:#fff4df;color:#946200}
+.rowbtn{padding:6px 8px;margin:2px;font-size:11px}.empty{text-align:center;color:var(--muted);padding:30px}
+.smallnote{font-size:12px;color:var(--muted);line-height:1.5}
+footer{text-align:center;color:#8994a5;font-size:11px;padding:15px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:repeat(2,1fr)}.filters{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){header{padding:23px 18px}.formgrid,.filters{grid-template-columns:1fr}.stat strong{font-size:23px}}
+</style>
+</head>
+<body>
+<header><h1>JobTrack</h1><p>Aplikasi pribadi untuk mencatat, memantau, dan mengevaluasi proses lamaran pekerjaan.</p></header>
+<main>
+<section class="stats">
+ <div class="stat"><span>Total Lamaran</span><strong id="total">0</strong></div>
+ <div class="stat"><span>Dalam Proses</span><strong id="proses">0</strong></div>
+ <div class="stat"><span>Diterima</span><strong id="diterima">0</strong></div>
+ <div class="stat"><span>Ditolak</span><strong id="ditolak">0</strong></div>
+</section>
+<section class="panel">
+ <h2 id="formTitle">+ Tambah Lamaran Pekerjaan</h2>
+ <form id="jobForm">
+  <input type="hidden" id="editId">
+  <div class="formgrid">
+   <div><label for="tanggal">Tanggal Melamar *</label><input id="tanggal" type="date" required></div>
+   <div><label for="perusahaan">Nama Perusahaan *</label><input id="perusahaan" required placeholder="Contoh: PT ABC Indonesia"></div>
+   <div><label for="posisi">Posisi yang Dilamar *</label><input id="posisi" required placeholder="Contoh: HR Officer"></div>
+   <div><label for="lokasi">Lokasi / Penempatan</label><input id="lokasi" placeholder="Contoh: Palembang"></div>
+   <div><label for="sumber">Sumber Lowongan</label><select id="sumber"><option value="">Pilih sumber</option><option>JobStreet</option><option>LinkedIn</option><option>Glints</option><option>Indeed</option><option>Email</option><option>Website Perusahaan</option><option>WhatsApp</option><option>Walk-in</option><option>Lainnya</option></select></div>
+   <div><label for="status">Status Lamaran</label><select id="status"><option>Dalam Proses</option><option>Diterima</option><option>Ditolak</option><option>Mundur</option><option>Tidak Ada Kabar</option></select></div>
+   <div><label for="tahap">Tahap Seleksi Saat Ini</label><select id="tahap"><option>Lamaran Terkirim</option><option>Seleksi Administrasi</option><option>Tes Tertulis / Online Test</option><option>Psikotes</option><option>Interview HR</option><option>Interview User</option><option>Interview Direksi</option><option>Medical Check Up</option><option offering>Offering / Negosiasi</option><option>Menunggu Keputusan</option><option>Selesai</option></select></div>
+   <div><label for="kontak">Kontak / HRD</label><input id="kontak" placeholder="Nama, email, atau nomor"></div>
+   <div><label for="tautan">Link Lowongan / Catatan Tautan</label><input id="tautan" type="url" placeholder="https://..."></div>
+   <div style="grid-column:1/-1"><label for="catatan">Catatan / Hasil Seleksi / Tindak Lanjut</label><textarea id="catatan" placeholder="Contoh: Sudah mengirim CV dan cover letter; follow-up tanggal ..."></textarea></div>
+  </div>
+  <div class="actions"><button class="primary" type="submit" id="saveBtn">Simpan Lamaran</button><button class="secondary" type="button" id="cancelEdit" hidden>Batal Edit</button><button class="secondary" type="reset">Kosongkan Form</button></div>
+ </form>
+</section>
+<section class="panel">
+ <h2>Daftar Rekap Lamaran</h2>
+ <div class="filters">
+  <input id="search" placeholder="Cari perusahaan, posisi, lokasi...">
+  <select id="filterPosisi"><option value="">Semua Posisi</option></select>
+  <select id="filterStatus"><option value="">Semua Status</option><option>Dalam Proses</option><option>Diterima</option><option>Ditolak</option><option>Mundur</option><option>Tidak Ada Kabar</option></select>
+  <select id="sortDate"><option value="new">Tanggal Terbaru</option><option value="old">Tanggal Terlama</option></select>
+ </div>
+ <div class="actions" style="margin:0 0 13px"><button class="secondary" id="exportBtn">Ekspor CSV</button><button class="secondary" id="printBtn">Cetak Rekap</button><button class="danger" id="clearBtn">Hapus Semua Data</button></div>
+ <div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Perusahaan & Lokasi</th><th>Posisi</th><th>Status</th><th>Tahap Seleksi</th><th>Sumber</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody id="jobRows"></tbody></table><div class="empty" id="empty">Belum ada data lamaran. Silakan tambahkan melalui formulir di atas.</div></div>
+ <p class="smallnote">Data tersimpan otomatis di browser/perangkat ini (local storage). Gunakan Ekspor CSV secara berkala sebagai cadangan. Data tidak otomatis tersinkron ke perangkat lain.</p>
+</section>
+</main>
+<footer>JobTrack • Rekap Lamaran Pekerjaan Pribadi</footer>
+<script>
+const $=id=>document.getElementById(id);
+const fields=['tanggal','perusahaan','posisi','lokasi','sumber','status','tahap','kontak','tautan','catatan'];
+let jobs=JSON.parse(localStorage.getItem('jobtrack_data')||'[]');
+const save=()=>localStorage.setItem('jobtrack_data',JSON.stringify(jobs));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function stats(){ $('total').textContent=jobs.length;$('proses').textContent=jobs.filter(x=>x.status==='Dalam Proses').length;$('diterima').textContent=jobs.filter(x=>x.status==='Diterima').length;$('ditolak').textContent=jobs.filter(x=>x.status==='Ditolak').length; }
+function positions(){const old=$('filterPosisi').value;const ps=[...new Set(jobs.map(x=>x.posisi).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));$('filterPosisi').innerHTML='<option value="">Semua Posisi</option>'+ps.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');$('filterPosisi').value=ps.includes(old)?old:'';}
+function render(){
+ stats();positions();
+ const q=$('search').value.toLowerCase(),p=$('filterPosisi').value,s=$('filterStatus').value;
+ const list=jobs.filter(x=>(!q||[x.perusahaan,x.posisi,x.lokasi,x.catatan].join(' ').toLowerCase().includes(q))&&(!p||x.posisi===p)&&(!s||x.status===s)).sort((a,b)=>$('sortDate').value==='new'?b.tanggal.localeCompare(a.tanggal):a.tanggal.localeCompare(b.tanggal));
+ $('jobRows').innerHTML=list.map(x=>`<tr><td>${esc(x.tanggal)}</td><td><strong>${esc(x.perusahaan)}</strong><div class="muted">${esc(x.lokasi||'-')}</div></td><td><strong>${esc(x.posisi)}</strong></td><td><span class="pill ${x.status==='Diterima'?'diterima':x.status==='Ditolak'?'ditolak':x.status==='Dalam Proses'?'proses':x.status==='Mundur'?'mundur':''}">${esc(x.status)}</span></td><td>${esc(x.tahap)}</td><td>${esc(x.sumber||'-')}</td><td>${esc(x.catatan||'-')}<div class="muted">${x.tautan?`<a href="${esc(x.tautan)}" target="_blank" rel="noopener">Buka tautan</a>`:''}</div></td><td><button class="secondary rowbtn" onclick="editJob('${x.id}')">Edit</button><button class="danger rowbtn" onclick="deleteJob('${x.id}')">Hapus</button></td></tr>`).join('');
+ $('empty').style.display=list.length?'none':'block';
+}
+$('jobForm').addEventListener('submit',e=>{e.preventDefault();const id=$('editId').value;const obj={id:id||String(Date.now()),};fields.forEach(f=>obj[f]=$(f).value);if(id){jobs=jobs.map(x=>x.id===id?obj:x)}else jobs.push(obj);save();resetForm();render();});
+function resetForm(){$('jobForm').reset();$('editId').value='';$('formTitle').textContent='+ Tambah Lamaran Pekerjaan';$('saveBtn').textContent='Simpan Lamaran';$('cancelEdit').hidden=true;}
+window.editJob=id=>{const x=jobs.find(j=>j.id===id);if(!x)return;fields.forEach(f=>$(f).value=x[f]||'');$('editId').value=id;$('formTitle').textContent='Edit Data Lamaran';$('saveBtn').textContent='Simpan Perubahan';$('cancelEdit').hidden=false;window.scrollTo({top:0,behavior:'smooth'});};
+window.deleteJob=id=>{if(confirm('Hapus data lamaran ini?')){jobs=jobs.filter(x=>x.id!==id);save();render();}};
+$('cancelEdit').onclick=resetForm;
+['search','filterPosisi','filterStatus','sortDate'].forEach(id=>$(id).addEventListener('input',render));
+$('clearBtn').onclick=()=>{if(jobs.length&&confirm('Yakin ingin menghapus SELURUH data lamaran? Tindakan ini tidak dapat dibatalkan.')){jobs=[];save();render();}};
+$('exportBtn').onclick=()=>{const headers=['Tanggal','Perusahaan','Posisi','Lokasi','Sumber','Status','Tahap Seleksi','Kontak/HRD','Link','Catatan'];const rows=jobs.map(x=>fields.map(f=>x[f]||''));const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rekap-lamaran-pekerjaan.csv';a.click();URL.revokeObjectURL(a.href);};
+$('printBtn').onclick=()=>window.print();
+render();
+</script>
+</body></html>
